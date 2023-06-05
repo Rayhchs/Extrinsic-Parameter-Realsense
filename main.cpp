@@ -1,5 +1,6 @@
 #include "lib/utils.h"
 #include <iostream>
+#include <yaml-cpp/yaml.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -19,15 +20,14 @@ int sim(){
 	Parameter Cam1_par;
 	Parameter Cam2_par;
 
+	// Read config file
+	YAML::Node config = YAML::LoadFile("config.yaml");
+
 	// Camera information provided by realsense
 	Cam1_par.scale = 0.001;
-	Cam1_par.Cam_inter << 902.847, 0.0, 650.313,
-		              	  0.0, 902.784, 359.130,
-		              	  0.0, 0.0, 1.0;
-	Cam2_par.scale = 0.001;              	   
-	Cam2_par.Cam_inter << 907.792, 0.0, 645.128,
-		              	  0.0, 908.006, 362.454,
-		              	  0.0, 0.0, 1.0;
+	Cam2_par.scale = 0.001;
+	OT.yaml2eigen(config, Cam1_par, "Cam1_inter");              	   
+	OT.yaml2eigen(config, Cam2_par, "Cam2_inter");  
 
 	// Assume Cam1 at (0, 0, 0)
 	Cam1_par.Cam_exter << 1, 0, 0, 0,
@@ -36,14 +36,19 @@ int sim(){
 			   			  0, 0, 0, 1;
 
 	// Load image
-	cv::Mat Cam1_img = cv::imread("Cam1/cam.png_Color_1683105025876.77001953125000.png", cv::IMREAD_UNCHANGED);
-	cv::Mat Cam2_img = cv::imread("Cam2/eye.png_Color_1683098027550.76708984375000.png", cv::IMREAD_UNCHANGED);
+	std::string cam1_file, cam2_file;
+	cam1_file = config["Cam1_img"].as<std::string>();
+	cam2_file = config["Cam2_img"].as<std::string>();
+
+	cv::Mat Cam1_img = cv::imread(cam1_file, cv::IMREAD_UNCHANGED);
+	cv::Mat Cam2_img = cv::imread(cam2_file, cv::IMREAD_UNCHANGED);
 	cv::Size imageSize = Cam1_img.size();
 	std::vector<int> sizeVector = { imageSize.height, imageSize.width };
 
 	// Load depth data of cam1
-	string filename = "Cam1/cam.raw_Depth_1683105025868.10009765625000.raw";
-	vector<float> Cam1_depth_input = RH.ReadRawFile(filename);
+	std::string cam1_dep;
+	cam1_dep = config["Cam1_dep"].as<std::string>();
+	vector<float> Cam1_depth_input = RH.ReadRawFile(cam1_dep);
 	cv::Mat Cam1_depth;
 	RH.Reshape(Cam1_depth_input, sizeVector, Cam1_depth);
 	// Cam1_depth *= Cam1_par.scale;

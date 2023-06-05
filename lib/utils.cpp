@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <iostream>
 #include <fstream>
+#include <yaml-cpp/yaml.h>
 #include <vector>
 #include <Eigen/Core>
 #include <eigen3/Eigen/Dense>
@@ -17,7 +18,9 @@ using namespace std;
 using namespace cv;
 using namespace Utils;
 
-void Coord_Cvt::pixel2world(Matrix3d interparam, Matrix4d exterparam, float u, float v, float depth, MatrixXd& world_coords){
+
+void Coord_Cvt::pixel2world(Matrix3d interparam, Matrix4d exterparam, float u, float v, float depth, MatrixXd& world_coords)
+{
 
 	// Pixel coordinate
 	float Zc = 1;
@@ -42,14 +45,18 @@ void Coord_Cvt::pixel2world(Matrix3d interparam, Matrix4d exterparam, float u, f
 
 }
 
-void Coord_Cvt::world2pixel(Matrix3d interparam, Matrix4d exterparam, MatrixXd world_coords, MatrixXd& pix_coords){
+
+void Coord_Cvt::world2pixel(Matrix3d interparam, Matrix4d exterparam, MatrixXd world_coords, MatrixXd& pix_coords)
+{
 
 	Eigen::MatrixXd Cam_ext_top = exterparam.topRows(3);
 	pix_coords = interparam * Cam_ext_top * world_coords;
 
 }
 
-void Coord_Cvt::get_ext(MatrixXd W, MatrixXd E, Matrix3d E_int, Matrix4d& E_ext){
+
+void Coord_Cvt::get_ext(MatrixXd W, MatrixXd E, Matrix3d E_int, Matrix4d& E_ext)
+{
 
 	// Declaration
 	cv::Mat rvec, tvec, R;
@@ -70,6 +77,7 @@ void Coord_Cvt::get_ext(MatrixXd W, MatrixXd E, Matrix3d E_int, Matrix4d& E_ext)
 	cv::vconcat(E_ext_mat, M, E_ext_mat);
 	cv::cv2eigen(E_ext_mat, E_ext);
 }
+
 
 std::vector<float> RawHelper::ReadRawFile(std::string& fileName)
 {
@@ -116,6 +124,7 @@ std::vector<float> RawHelper::ReadRawFile(std::string& fileName)
     return result;
 }
 
+
 int RawHelper::Reshape(std::vector<float>& input, std::vector<int>& shape, cv::Mat& output)
 {
     if (input.size() != std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<int>()))
@@ -129,13 +138,27 @@ int RawHelper::Reshape(std::vector<float>& input, std::vector<int>& shape, cv::M
     return 0;
 }
 
-MatrixXd OtherTools::vectorToPointMatrix(vector<cv::Point> points) {
-  int rows = points.size();
-  MatrixXd result(rows, 2);
-  Map<MatrixXd> map(result.data(), rows, 2);
-  for (int i = 0; i < rows; i++) {
-    map(i, 0) = points[i].x;
-    map(i, 1) = points[i].y;
-  }
-  return result;
+
+MatrixXd OtherTools::vectorToPointMatrix(vector<cv::Point> points)
+{
+    int rows = points.size();
+    MatrixXd result(rows, 2);
+    Map<MatrixXd> map(result.data(), rows, 2);
+
+    for (int i = 0; i < rows; i++) {
+        map(i, 0) = points[i].x;
+        map(i, 1) = points[i].y;
+    }
+    return result;
+}
+
+
+int OtherTools::yaml2eigen(const YAML::Node& config, Parameter& params, std::string Cam_name)
+{
+    for (int i = 0; i < params.Cam_inter.rows(); ++i) {
+        for (int j = 0; j < params.Cam_inter.cols(); ++j) {
+            params.Cam_inter(i, j) = config[Cam_name][i][j].as<float>();
+        }
+    }
+    return 0;
 }
