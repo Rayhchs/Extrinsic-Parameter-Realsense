@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <Eigen/Dense>
+#include <yaml-cpp/yaml.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -46,6 +47,7 @@ class OtherTools{
 
 public:
     MatrixXd vectorToPointMatrix(vector<cv::Point> points);
+    int yaml2eigen(const YAML::Node& config, Parameter& params, std::string Cam_name);
 };
 }
 #endif
