@@ -31,6 +31,9 @@ Open config.yaml and change any variable you want.
 |:--------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |      Cam1_inter      | Intrinsic parameter of Camera 1 which is assuamed at (0, 0, 0) |
 |    Cam2_inter   | Intrinsic parameter of Camera 2 |
-|    Cam1_img   | RGB image of Camera1 |
-|    Cam2_img   | RGB image of Camera2 |
-|    Cam1_dep   | depth image of Camera2 |
+|    Cam1_img   | RGB image of Camera 1 |
+|    Cam2_img   | RGB image of Camera 2 |
+|    Cam1_dep   | depth image of Camera 2 |
+
+## Result
+The relative extrinsic parameter of Camera 2 would be printed on the terminal.
